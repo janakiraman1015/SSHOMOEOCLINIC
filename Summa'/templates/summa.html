@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Charts</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    .chart-box {
+      width: 400px;
+      margin: 30px;
+    }
+
+    .category-list {
+      margin-top: 15px;
+    }
+
+    .category-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Bar Chart -->
+  <div class="chart-box">
+    <canvas id="barChart"></canvas>
+  </div>
+
+  <!-- Donut Chart -->
+  <div class="chart-box">
+    <canvas id="pieChart"></canvas>
+    <div class="category-list">
+      <div class="category-item"><span>Fashion</span><span>63%</span></div>
+      <div class="category-item"><span>Sports</span><span>29%</span></div>
+      <div class="category-item"><span>Games</span><span>15%</span></div>
+      <div class="category-item"><span>Electronics</span><span>23%</span></div>
+    </div>
+  </div>
+
+  <script>
+
+    // ✅ Donut Chart
+    new Chart(document.getElementById('pieChart'), {
+      type: 'doughnut',   // 🔥 changed from pie
+      data: {
+        labels: ['Fashion','Sports','Games','Electronics'],
+        datasets: [{
+          data: [63,29,15,23],
+          backgroundColor: [
+            '#4CAF50',
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56'
+          ]
+        }]
+      },
+      options: {
+        cutout: '70%',   // 🔥 donut hole
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

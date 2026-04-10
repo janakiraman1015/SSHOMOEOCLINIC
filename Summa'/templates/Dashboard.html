@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Analytics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: #f4f5fb;
+  color: #1c1c1c;
+}
+
+.container { display: flex; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 90px;
+  height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  gap: 25px;
+  box-shadow: 2px 0 20px rgba(0,0,0,0.04);
+}
+.sidebar .logo { font-weight: 600; }
+.sidebar .icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.sidebar .active { background: #6c5ce7; color: #fff; }
+
+/* MAIN */
+#dashboard { flex: 1; padding: 30px; margin-top: 1%;}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header h1 { margin: 0; font-size: 24px; }
+
+.tabs {
+  display: flex;
+  gap: 10px;
+}
+.tabs button {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #6c5ce7;
+  background: transparent;
+  color: #6c5ce7;
+  cursor: pointer;
+}
+.tabs button.active {
+  background: #6c5ce7;
+  color: #fff;
+}
+
+.cards {
+  margin-top: 25px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+}
+.card h4 {
+  margin: 0;
+  font-weight: 400;
+  color: #888;
+}
+.card h2 {
+  margin: 10px 0;
+  font-size: 26px;
+}
+.card small { color: #6c5ce7; }
+
+.layout {
+  margin-top: 25px;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 20px;
+}
+.chart-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+}
+
+.bottom {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.category-list {
+  margin-top: 20px;
+}
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.active{
+display:block;
+}
+
+.hidden{
+  display: none;
+}
+
+/* TABLE */
+
+
+table{
+width:160%;
+background:white;
+border-radius:10px;
+margin: 0 25px;
+border-radius: 20px;
+border-collapse:collapse;
+box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+th{
+background:#6c5ce7;
+color:white;
+padding:12px;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #eee;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+button{
+background:#1565c0;
+color:white;
+border:none;
+padding:10px 18px;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* ACCEPT */
+.accept-btn {
+  background: #e6f9f0;
+  color: #00b894;
+}
+
+.accept-btn:hover {
+  background: #00b894;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0, 184, 148, 0.3);
+}
+
+/* DECLINE */
+.decline-btn {
+  background: #ffecec;
+  color: #d63031;
+}
+
+.decline-btn:hover {
+  background: #d63031;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(214, 48, 49, 0.3);
+}
+
+.filter-bar {
+  margin: 20px 25px;
+  display: flex;
+  align-items: center;   /* 🔥 fixes vertical alignment */
+  gap: 12px;
+}
+
+/* Make dropdowns & buttons same height */
+.filter-bar select,
+.filter-bar button {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+/* Dropdown styling */
+.filter-bar select {
+  background: white;
+  cursor: pointer;
+}
+
+/* Buttons */
+.filter-bar button {
+  background: #6c5ce7;
+  color: white;
+  border: none;
+  transition: 0.2s;
+}
+
+.filter-bar button:hover {
+  background: #5a4bd6;
+}
+
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div onclick="show('dashboard')" class="icon active"><i class="fa-solid fa-chart-line"></i></div>
+    <div onclick="show('appointments')" class="icon"><i class="fa-solid fa-business-time"></i></div>
+    <div onclick="show('patients')" class="icon"><i class="fa-solid fa-users"></i></div>
+    <div class="icon"><i class="fa-solid fa-blog"></i></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="section active">
+    <div class="header">
+      <h1>Analytics</h1>
+
+      <div style="display:flex; gap:10px; align-items:center;">
+    
+          <input type="month" id="dashboardFilter"
+                value="{{ selected_year }}-{{ selected_month }}">
+
+          <button onclick="applyDashboardFilter()">Apply</button>
+
+          <button onclick="downloadDashboard()">Download</button>
+
+      </div>
+    </div>
+
+    
+
+    <div class="cards">
+      <div class="card">
+        <h4>Appointments</h4>
+        <h2>{{ total_appointments }}</h2>
+        <small>{{ deviation['appointments_percent'] }}%</small>
+      </div>
+      <div class="card">
+        <h4>Patients</h4>
+        <h2>{{ patients }}</h2>
+        <small>{{ deviation['patients_percent'] }}%</small>
+      </div>
+      <div class="card">
+        <h4>Conversion rates</h4>
+        <h2>{{ conversion_rate }}%</h2>
+        <small>{{ deviation['conversion_rates_change_percent'] }}%</small>
+      </div>
+      <div class="card">
+        <h4>Total Patients Treated</h4>
+        <h2>{{ overall_patients }}</h2>
+        <small>{{ deviation['patients_percent'] }}%</small>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="chart-box">
+        <canvas id="barChart"></canvas>
+      </div>
+
+      <div class="chart-box">
+        <canvas id="pieChart" data-values='{{ deviation | tojson }}'></canvas>
+        <div class="category-list">
+          <div class="category-item"><span>Appointments</span><span>{{ total_appointments }}</span></div>
+          <div class="category-item"><span>Patients</span><span>{{ patients }}</span></div>
+          <div class="category-item"><span>Conversion rate</span><span>{{ conversion_rate }}%</span></div>
+          <div class="category-item"><span>Total Patients Treated</span><span>{{ overall_patients }}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPOINTMENTS -->
+  <div id="appointments" class="section hidden">
+
+    <div class="header" style="padding: 50px;">
+      <h1>Appointment System</h1>
+    </div>
+
+    {% if pending_data|length > 0 %}
+
+    <table>
+      <thead>
+        <tr>
+          <th>SI No</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Date</th>
+          <th>Problem</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="appointmentTable">
+        {% for row in pending_data %}
+        <tr id="row-{{ row[0] }}" style="text-align: center;">
+          <td>{{ row[0] }}</td>
+          <td>{{ row[1] }}</td>
+          <td>{{ row[2] }}</td>
+          <td>{{ row[3] }}</td>
+          <td>{{ row[4] }}</td>
+          <td>{{ row[5] }}</td>
+          <td id="status-{{ row[0] }}">
+            {% if row[6] == "Accepted" %}
+              <span style="color: green; font-weight: 500;">Accepted</span>
+
+            {% elif row[6] == "Declined" %}
+              <span style="color: red; font-weight: 500;">Declined</span>
+
+            {% else %}
+              <button class="accept-btn" title="Accept" data-row='{{ row | tojson | safe }}'>✔</button>
+              <button class="decline-btn" title="Decline" data-row='{{ row | tojson | safe }}'>✖</button>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% else %}
+
+    <p style="text-align:center; padding: 20px; color: gray;">
+      No new appointments available
+    </p>
+
+    {% endif %}
+
+  </div>
+
+  <!-- PATIENTS -->
+  <div id="patients" class="section hidden">
+    <div class="header">
+      <h1>Patients</h1>
+    </div>
+
+    <div style="margin: 20px 30px; display: flex; gap: 10px;">
+
+  <!-- Month -->
+  <select id="monthFilter">
+    <option value="">All Months</option>
+    <option value="01">Jan</option>
+    <option value="02">Feb</option>
+    <option value="03">Mar</option>
+    <option value="04">Apr</option>
+    <option value="05">May</option>
+    <option value="06">Jun</option>
+    <option value="07">Jul</option>
+    <option value="08">Aug</option>
+    <option value="09">Sep</option>
+    <option value="10">Oct</option>
+    <option value="11">Nov</option>
+    <option value="12">Dec</option>
+  </select>
+
+  <!-- Year -->
+  <select id="yearFilter">
+    <option value="">All Years</option>
+    <option value="2026">2026</option>
+    <option value="2025">2025</option>
+  </select>
+
+  <button onclick="resetPatientFilter()">Reset</button>
+
+  <button onclick="downloadPatients()">Download</button>
+
+</div>
+    {% if patients_data|length > 0 %}
+
+    <table>
+      <thead>
+        <tr>
+          <th>SI No</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+
+          <th>Date</th>
+          <th>Problem</th>
+        </tr>
+      </thead>
+      <tbody id="patientsTable">
+        {% for row in patients_data %}
+        <tr id="row-{{ row[0] }}" style="text-align: center;">
+          <td>{{ row[0] }}</td>
+          <td>{{ row[1] }}</td>
+          <td>{{ row[2] }}</td>
+          <td>{{ row[3] }}</td>
+          <td>{{ row[4] }}</td>
+          <td>{{ row[5] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% else %}
+
+    <p style="text-align:center; padding: 20px; color: gray;">
+      No Patients available
+    </p>
+
+    {% endif %}
+
+  </div>
+
+</div>
+
+<script>
+  // Apply filter (reload page)
+function applyDashboardFilter() {
+  const value = document.getElementById("dashboardFilter").value;
+
+  if (!value) return;
+
+  const [year, month] = value.split("-");
+
+  window.location.href = `/dashboard?month=${month}&year=${year}`;
+}
+
+// Auto trigger on change (optional)
+document.getElementById("dashboardFilter")
+  .addEventListener("change", applyDashboardFilter);
+
+
+// Download dashboard as PDF
+function downloadDashboard() {
+  const element = document.getElementById("dashboard");
+
+  const opt = {
+    margin: 0.5,
+    filename: `analytics_${new Date().toISOString().slice(0,7)}.pdf`,
+    image: { type: 'jpeg', quality: 1 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+  };
+
+  html2pdf().set(opt).from(element).save();
+}
+</script>
+
+
+<script>
+  function downloadPatients() {
+  const rows = document.querySelectorAll("#patientsTable tr");
+  
+  let csv = [];
+  
+  // Table headers
+  csv.push(["SI No", "Name", "Email", "Phone", "Date", "Problem"]);
+
+  rows.forEach(row => {
+    if (row.style.display === "none") return; // skip filtered rows
+
+    const cols = row.querySelectorAll("td");
+    let rowData = [];
+
+    cols.forEach(col => {
+      rowData.push(col.innerText.trim());
+    });
+
+    csv.push(rowData);
+  });
+
+  // Convert to CSV format
+  let csvContent = csv.map(e => e.join(",")).join("\n");
+
+  // Create file
+  const blob = new Blob([csvContent], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "patients_data.csv";
+  a.click();
+
+  window.URL.revokeObjectURL(url);
+}
+</script>
+
+<script>
+
+function checkEmptyTable() {
+    let appointmentTable = document.getElementById("appointmentTable");
+    const rows = appointmentTable.querySelectorAll("tr");
+
+    if (rows.length === 0) {
+        appointmentTable.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align:center; padding:20px; color:gray;">
+                    No appointments available
+                </td>
+            </tr>
+        `;
+    }
+}
+
+
+
+document.querySelectorAll('.accept-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const row = JSON.parse(this.dataset.row);
+
+        fetch('/accept_appointment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ row: row })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const rowEl = document.getElementById(`row-${row[0]}`);
+                rowEl.style.transition = "0.3s";
+                rowEl.style.opacity = "0";
+                checkEmptyTable()
+                 }
+                 
+            });
+    });
+});
+
+document.querySelectorAll('.decline-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const row = JSON.parse(this.dataset.row);
+
+        fetch('/decline_appointment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ row: row })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const rowEl = document.getElementById(`row-${row[0]}`);
+                rowEl.style.transition = "0.3s";
+                rowEl.style.opacity = "0";
+                setTimeout(() => rowEl.remove(), 300);
+                checkEmptyTable()
+                }
+              
+        });
+    });
+});
+</script>
+
+<script>
+  document.getElementById("monthFilter").addEventListener("change", filterPatients);
+document.getElementById("yearFilter").addEventListener("change", filterPatients);
+
+function filterPatients() {
+  const month = document.getElementById("monthFilter").value;
+  const year = document.getElementById("yearFilter").value;
+
+  const rows = document.querySelectorAll("#patientsTable tr");
+
+  rows.forEach(row => {
+    const dateText = row.cells[4].innerText.trim(); // Date column
+
+    // format: YYYY-MM-DD
+    const [rowYear, rowMonth] = dateText.split("-");
+
+    let show = true;
+
+    if (month && rowMonth !== month) show = false;
+    if (year && rowYear !== year) show = false;
+
+    row.style.display = show ? "" : "none";
+  });
+}
+
+function resetPatientFilter() {
+  document.getElementById("monthFilter").value = "";
+  document.getElementById("yearFilter").value = "";
+  filterPatients();
+}
+</script>
+
+<script>
+
+
+
+
+
+/* SECTION SWITCH */
+
+function show(id){
+  document.querySelectorAll(".section").forEach(s=>{
+    s.classList.remove("active");
+    s.classList.add("hidden");
+  });
+
+  document.getElementById(id).classList.remove("hidden");
+  document.getElementById(id).classList.add("active");
+
+  // highlight sidebar icon
+  document.querySelectorAll(".sidebar .icon").forEach(i=>{
+    i.classList.remove("active");
+  });
+  event.currentTarget.classList.add("active");
+}
+
+
+
+fetch('/api/get/barchart_data')
+.then(res => res.json())
+.then(data => {
+  console.log("data:",data);
+  new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+
+      labels: data.labels,
+      datasets: [
+        {
+          label: 'Appointments',
+          data: data.appointments,
+          backgroundColor: '#6c5ce7'
+        },
+        {
+          label: 'Attended Patients',
+          data: data.patients,
+          backgroundColor: '#00b894'
+        }
+      ]
+    }
+  });
+
+});
+
+  let canvas = document.getElementById("pieChart");
+  let values = JSON.parse(canvas.dataset.values);
+  console.log("values:",values);
+
+
+  new Chart(document.getElementById('pieChart'), {
+      type: 'doughnut',   // 🔥 changed from pie
+      data: {
+        labels: ['Appointments','Patients','Conversion Rate','Total Patients Treated'],
+        datasets: [{
+          data: [values.appointments_percent,values.patients_percent,values.conversion_rates_change_percent,values.patients_percent],
+          backgroundColor: [
+            '#4CAF50',
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56'
+          ]
+        }]
+      },
+      options: {
+        cutout: '60%',
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+
+new Chart(document.getElementById('hChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Facebook','Instagram','YouTube','Twitter'],
+    datasets: [{ data: [20000,28000,22000,15000], backgroundColor: '#6c5ce7' }]
+  },
+  options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('lineChart'), {
+  type: 'line',
+  data: {
+    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'],
+    datasets: [{ data: [4500,3800,4700,4000,4200,4800,3900,3500], borderColor: '#6c5ce7' }]
+  },
+  options: { plugins: { legend: { display: false } } }
+});
+</script>
+
+</body>
+</html>
