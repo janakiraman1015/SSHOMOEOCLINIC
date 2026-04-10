@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+        <style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: #f4f5fb;
+  color: #1c1c1c;
+}
+
+.container { display: flex; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 90px;
+  height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  gap: 25px;
+  box-shadow: 2px 0 20px rgba(0,0,0,0.04);
+}
+.sidebar .logo { font-weight: 600; }
+.sidebar .icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.sidebar .active { background: #6c5ce7; color: #fff; }
+
+/* MAIN */
+.title { flex: 1; padding: 30px; margin-top: 1%;}
+
+.title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+.title h1 { margin: 0; font-size: 24px; }
+
+.tabs {
+  display: flex;
+  gap: 10px;
+}
+.tabs button {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #6c5ce7;
+  background: transparent;
+  color: #6c5ce7;
+  cursor: pointer;
+}
+.tabs button.active {
+  background: #6c5ce7;
+  color: #fff;
+}
+
+    </style>
+</head>
+<body>
+    
+<div class="sidebar">
+  <div  onclick="show('dashboard')" class="icon active"><i class="fa-solid fa-chart-line"></i></div>
+  <div  onclick="show('appointments')"  class="icon" ><i class="fa-solid fa-business-time"></i></div>
+  <div onclick="show('patients')" class="icon"><i class="fa-solid fa-users"></i></div>
+  <div class="icon"><i class="fa-solid fa-blog"></i></div>
+</div>
+
+    <div class="title">
+        <h1>Patients Waiting Hall</h1>
+    </div>
+
+
+</body>
+</html>
